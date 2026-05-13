@@ -1,0 +1,272 @@
+@startuml QML_PLACEMENT_ARCHITECTURE
+skinparam backgroundColor #F5F5F5
+skinparam fontFamily Arial
+skinparam fontSize 11
+skinparam padding 10
+skinparam packageBorderColor #333
+
+title QML·PLACE Architecture Diagram
+subtitle Quantum Machine Learning Enhanced Global Placement Engine
+
+' Layer 1: User Interface Layer
+package "🎨 Presentation Layer (PyQt6)" #E8F4F8 {
+    component MainWindow as main_ui [
+        **MainWindow**
+        ----
+        Central application controller
+        Coordinates UI components
+        Thread-safe signal/slot handling
+    ]
+    
+    component CanvasWidget as canvas [
+        **CanvasWidget**
+        ----
+        2D cell placement visualization
+        Interactive zoom/pan
+        Real-time updates
+    ]
+    
+    component PhysicsVisualizer as physics [
+        **PhysicsVisualizer**
+        ----
+        4-Panel Dark Dashboard:
+        • Panel 0: BigBlue4 layout
+        • Panel 1: Density map
+        • Panel 2: Electric potential
+        • Panel 3: Electric field
+    ]
+    
+    component ChartsWidget as charts [
+        **ChartsWidget**
+        ----
+        HPWL convergence graph
+        Overflow penalty trend
+        Loss history tracking
+    ]
+    
+    component GPUPanel as gpu_panel [
+        **GPUPanel**
+        ----
+        GPU utilization (%)
+        VRAM usage (MB)
+        Temperature (°C)
+        Power (W)
+    ]
+    
+    component LogConsole as logs [
+        **LogConsole**
+        ----
+        Live application logging
+        Debug output display
+        Thread-safe message queue
+    ]
+    
+    component ProgressWidget as progress [
+        **ProgressWidget**
+        ----
+        Placement progress bar
+        Iteration counter
+        ETA calculation
+    ]
+    
+    component StatsTable as stats [
+        **StatsTable**
+        ----
+        Numerical metrics
+        Cell statistics
+        Placement bounds
+    ]
+}
+
+' Layer 2: Core Optimization Engine
+package "⚡ Optimization Layer" #FFF4E6 {
+    component GlobalPlacementEngine as placement_engine [
+        **GlobalPlacementEngine**
+        ----
+        Main optimization loop (SGD)
+        Loss computation (HPWL + Overflow)
+        Gradient descent with momentum=0.9
+        Early stopping logic
+        Convergence control
+    ]
+    
+    component NetPairBuilder as net_builder [
+        **NetPairBuilder**
+        ----
+        Pre-compute net connectivity
+        (driver, sink) pair extraction
+        Cache for fast reuse
+    ]
+    
+    component ConstraintHandler as constraints [
+        **ConstraintHandler**
+        ----
+        Die boundary clamping
+        Fixed cell handling
+        Placement constraints
+    ]
+}
+
+' Layer 3: Quantum-Classical Hybrid
+package "🔬 Quantum-Classical Hybrid Layer" #F0E6FF {
+    component QuantumCircuit as qml [
+        **QuantumCircuit (PennyLane)**
+        ----
+        VQC: 8 qubits, 4 layers
+        RY/RZ rotations
+        Adjoint differentiation
+        (Disabled for >100 cells)
+    ]
+    
+    component FeatureEncoder as encoder [
+        **Sky130FeatureEncoder**
+        ----
+        Extract 8 features per cell:
+        • Dimensions (width, height)
+        • Connectivity (pins, fanout, fanin)
+        • Placement context
+        Normalize to [-1, 1] range
+    ]
+}
+
+' Layer 4: GPU Acceleration
+package "🖥️ GPU Computing (PyTorch CUDA)" #E6F4FF {
+    component PyTorchOptimizer as torch_opt [
+        **PyTorch SGD Optimizer**
+        ----
+        GPU tensor operations
+        Momentum=0.9
+        Learning rate: 0.05
+        Device: CUDA (RTX 4060)
+    ]
+}
+
+' Layer 5: Support Services
+package "🔧 Support Layer" #F0FFF0 {
+    component GPUMonitor as gpu_mon [
+        **GPUMonitor (pynvml)**
+        ----
+        GPU utilization tracking
+        VRAM, temperature, power
+        Background thread (0.5s refresh)
+    ]
+    
+    component StatsStore as db_store [
+        **StatsStore (SQLAlchemy)**
+        ----
+        SQLite persistence
+        Tables: placements, metrics
+        runs, comparisons
+    ]
+    
+    component PlacementThread as pl_thread [
+        **PlacementThread (QThread)**
+        ----
+        Async placement execution
+        Prevents GUI blocking
+        Signal-based callbacks
+    ]
+    
+    component OpenROADbridge as openroad [
+        **OpenROADbridge**
+        ----
+        LEF/DEF I/O
+        TCL hook integration
+        Sky130 alignment
+        Native OpenROAD integration
+    ]
+}
+
+' Layer 6: Configuration & Data
+package "📋 Configuration & Data" #FFECEC {
+    component ConfigManager as config [
+        **ConfigManager**
+        ----
+        ca234_sky130.json
+        Learning rate: 0.05
+        Density weight: 8e-5
+        Patience: 200
+    ]
+    
+    component DesignData as design [
+        **Design Data**
+        ----
+        CA234: 10,000 cells
+        5,000 nets
+        17,500+ net pairs
+        1M × 1M µm² die
+    ]
+}
+
+' Connections - UI Layer
+main_ui --> canvas : "display"
+main_ui --> physics : "visualize"
+main_ui --> charts : "plot metrics"
+main_ui --> gpu_panel : "show GPU stats"
+main_ui --> logs : "log output"
+main_ui --> progress : "update progress"
+main_ui --> stats : "display metrics"
+
+' Connections - UI to Core
+main_ui --> pl_thread : "launch async"
+pl_thread --> placement_engine : "run placement"
+
+' Connections - Core Engine
+placement_engine --> net_builder : "build pairs"
+placement_engine --> constraints : "apply"
+placement_engine --> PyTorchOptimizer : "optimize"
+
+' Connections - QML
+placement_engine --> QuantumCircuit : "initialize (if n<100)"
+FeatureEncoder --> QuantumCircuit : "encode features"
+
+' Connections - Support
+placement_engine --> db_store : "save results"
+gpu_mon -.-> gpu_panel : "update UI"
+openroad --> design : "load design"
+config --> placement_engine : "configuration"
+
+' Connections - Post-Processing
+placement_engine --> openroad : "export DEF"
+placement_engine --> physics : "send coordinates"
+placement_engine --> charts : "send metrics"
+
+' Legend
+note bottom of main_ui
+    **Data Flow:**
+    → Synchronous call
+    -.-> Asynchronous update
+    
+    **Key Technologies:**
+    • PyQt6: GUI framework
+    • PyTorch: GPU optimization
+    • PennyLane: Quantum circuits
+    • SQLAlchemy: Database ORM
+    • pynvml: GPU monitoring
+    • CUDA 12.1: GPU compute
+end note
+
+' Hardware Box
+note right of PyTorchOptimizer
+    **Hardware Config:**
+    GPU: RTX 4060 Laptop
+    VRAM: 8GB
+    CUDA Cores: 1770
+    Compute Capability: 7.5
+end note
+
+' Loss Function Box
+note right of placement_engine
+    **Loss Function:**
+    L = HPWL_loss + λ×Overflow_loss
+    
+    HPWL_loss = Σ|Δx|+|Δy| / √(pairs)
+    λ = 8e-5
+    
+    Convergence:
+    • Init: 87.6M
+    • Final: 87.5M (0.001%)
+    • Time: 5-9s
+end note
+
+@enduml

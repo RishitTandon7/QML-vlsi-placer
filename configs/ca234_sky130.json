@@ -1,0 +1,44 @@
+{
+  "benchmark": "CA234",
+  "design_name": "CA234",
+  "pdk": "Sky130",
+  "pdk_variant": "HD",
+  "lef_input": [
+    "sky130_fd_sc_hd.tlef",
+    "sky130_fd_sc_hd.lef"
+  ],
+  "def_input": "./designs/CA234/CA234.def",
+  "def_output": "./results/CA234_placed.def",
+  "gpu": 1,
+  "dtype": "float32",
+  "target_density": 0.55,
+  "site_width": 0.46,
+  "site_height": 2.72,
+  "row_height": 2.72,
+  "num_bins_x": 512,
+  "num_bins_y": 512,
+  "global_place_stages": [
+    {
+      "num_bins_x": 512,
+      "num_bins_y": 512,
+      "iteration": 2000,
+      "learning_rate": 0.005,
+      "optimizer": "nesterov",
+      "density_weight": 1e-6,
+      "wirelength_weight": 1.0,
+      "overflow_weight": 5e-3
+    }
+  ],
+  "legalize_flag": 1,
+  "detailed_place_flag": 1,
+  "detailed_place_engine": "ntuplace3",
+  "min_move_distance": 1,
+  "max_move_distance": 50,
+  "num_threads": 8,
+  "log_level": "info",
+  "enable_timing_driven": false,
+  "timing_weight": 0.0,
+  "routability_weight": 0.0,
+  "power_weight": 0.0,
+  "verbose": true
+}
